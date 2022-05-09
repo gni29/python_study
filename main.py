@@ -1,16 +1,33 @@
-# This is a sample Python script.
+import pandas as pd
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+train = pd.read_csv('train.csv', encoding = "latin1")
+test = pd.read_csv('test.csv', encoding = "latin1")
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+train_1 = train[:25000]
+test_1 = train[25000:]
+train_1.to_csv("train_1.csv")
+test_1.to_csv("test_1.csv")
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+from torchtext.legacy import data
+from konply.tag import Mecab
+tokenizer = Mecab()
+
+ID = data.Field(sequential=False,
+                use_vocab=False)
+
+TEXT = data.field(sequential=True,
+                  use_vocab=True,
+                  tokenize=tokenizer.morphs,
+                  lower=True
+                  )
+
+LABEL = data.Field(sequential=False,
+                   use_vocab=False,
+                   is_target=True
+                   )
+train_data = data.TabularDataset(train = "Train",format='csv',
+                                    fields=[('id', ID),
+                                            ('text',TEXT),
+                                            ('label', LABEL)],
+                                    skip_header = True)
